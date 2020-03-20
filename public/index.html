@@ -37,7 +37,10 @@
   function onOpen(evt)
   {
     writeToScreen("CONNECTED");
-    doSend("WebSocket message request");
+    doSend(JSON.stringify({
+      id: 'test',
+      data: 'blah',
+    }));
   }
 
   function onClose(evt)

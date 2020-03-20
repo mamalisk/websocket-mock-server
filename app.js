@@ -3,15 +3,18 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const indexRouter = require('./src/routes/index');
 
-const app = express();
+const getApp = (configuration) => {
+    const app = express();
+    const RoutingService = require('./dist/routes/index').default;
+    const indexRouter = new RoutingService(configuration).routes;
+    app.use(logger('dev'));
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: false }));
+    app.use(cookieParser());
+    app.use(express.static(path.join(__dirname, 'public')));
+    app.use('/', indexRouter);
+    return app;
+}
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/', indexRouter);
-
-module.exports = app;
+module.exports = getApp;

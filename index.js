@@ -3,13 +3,12 @@
 /**
  * Module dependencies.
  */
-
-const app = require('./app');
 const debug = require('debug')('orion-mock-ws-server:server');
 const http = require('http');
-const WebSocket = require('ws');
-const url = require('url');
-
+const WebSocketService = require('./dist/services/webSocketService').WebSocketService;
+const ConfigurationService = require('./dist/configuration/index').default;
+const config = new ConfigurationService();
+const app = require('./app')(config);
 /**
  * Get port from environment and store in Express.
  */
@@ -84,35 +83,13 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
-
 /**
  * Event listener for websocket connections
  */
-
- const wss = new WebSocket.Server({ noServer: true });
-
- wss.on('connection', (ws) => {
-   ws.on('message', (data) => {
-      ws.send(`You sent ${data}`);
-  });
- });
-
-
-
- server.on('upgrade', (request, socket, head) => {
-    const pathname = url.parse(request.url).pathname;
-
-    if(pathname === '/ws') {
-      wss.handleUpgrade(request, socket, head, (ws) => {
-        wss.emit('connection', ws, request);
-      });
-    }
- });
-
+WebSocketService.create(server, config);
  /**
  * Listen on provided port, on all network interfaces.
  */
-
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
