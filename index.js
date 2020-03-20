@@ -4,24 +4,24 @@
  * Module dependencies.
  */
 
-var app = require('./app');
-var debug = require('debug')('orion-mock-ws-server:server');
-var http = require('http');
-var WebSocket = require('ws');
+const app = require('./app');
+const debug = require('debug')('orion-mock-ws-server:server');
+const http = require('http');
+const WebSocket = require('ws');
 const url = require('url');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '5000');
+const port = normalizePort(process.env.PORT || '5000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+const server = http.createServer(app);
 
 
 

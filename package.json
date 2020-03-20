@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "build": "tsc",
     "start": "node ./index.js"
   },
   "dependencies": {
@@ -10,6 +11,11 @@
     "debug": "2.6.9",
     "express": "4.16.1",
     "morgan": "1.9.1",
+    "tsc": "1.20150623.0",
+    "typescript": "3.8.3",
     "ws": "7.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "13.9.1"
   }
 }
