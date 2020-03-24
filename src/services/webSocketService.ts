@@ -1,9 +1,10 @@
 import {createServer, Server as HttpServer} from 'http';
 import {Server as WebSocketServer} from 'ws';
 import {parse as urlParse} from 'url';
-import { of } from 'rxjs';
+import { of, from, Observable } from 'rxjs';
+import { delay } from 'rxjs/operators';
 
-import ConfigurationService, { Behavior } from '../configuration';
+import ConfigurationService, { Behavior, IExecution } from '../configuration';
 
 export class WebSocketService {
     public static create(server: HttpServer, configuration: ConfigurationService): WebSocketService {
@@ -29,6 +30,12 @@ export class WebSocketService {
          });
     }
 
+    private getObservableFrom(execution : IExecution) : Observable<any> {
+        const { responseBody } = execution;
+        const source$ = Array.isArray(responseBody) ? from(responseBody) : of(responseBody);
+        return source$;
+    }
+
     private init(): void {
         this.wss.on('connection', (webSocket) => {
             webSocket.on('message', (data) => {
@@ -40,8 +47,22 @@ export class WebSocketService {
                         return;
                     }
                     switch(execution!.behavior) {
+                        case Behavior.DELAY_INITIAL_RESPONSE: {
+                            this.getObservableFrom(execution).pipe(
+                                delay(5000)
+                            ).subscribe(
+                                (_) => webSocket.send(JSON.stringify(_)),
+                                (error) => webSocket.send(JSON.stringify({ error }))
+                            )
+                            break;
+                        }
                         case Behavior.SUCCESSFUL_RESPONSE:
-                        default: webSocket.send(JSON.stringify(execution.responseBody));
+                        default: {
+                            this.getObservableFrom(execution).subscribe(
+                                (_) => webSocket.send(JSON.stringify(_)),
+                                (error) => webSocket.send(JSON.stringify({ error })),
+                            );
+                        }
                     }
                 } catch (error) {
                     webSocket.send(`Your message is not JSON. ${data}`);
